@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitor de Temperaturas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f6fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      color: #2f3640;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 20px 40px;
+      margin: 10px;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .label {
+      font-size: 18px;
+      color: #718093;
+    }
+
+    .value {
+      font-size: 36px;
+      font-weight: bold;
+      color: #273c75;
+    }
+
+    #timestamp {
+      margin-top: 20px;
+      color: #888;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Monitor de Temperaturas</h1>
+
+  <div class="card">
+    <div class="label">🌡️ Temp Interna</div>
+    <div class="value" id="tempInterna">-- °C</div>
+  </div>
+
+  <div class="card">
+    <div class="label">🌤️ Temp Externa</div>
+    <div class="value" id="tempExterna">-- °C</div>
+  </div>
+
+  <div id="timestamp">Última atualização: --</div>
+
+  <script>
+    async function atualizarTemperaturas() {
+      try {
+        const resposta = await fetch("/temperaturas");
+        if (!resposta.ok) throw new Error("Erro na API");
+
+        const dados = await resposta.json();
+
+        document.getElementById("tempInterna").textContent =
+          dados.interna ? `${dados.interna.toFixed(1)} °C` : "-- °C";
+
+        document.getElementById("tempExterna").textContent =
+          dados.externa ? `${dados.externa.toFixed(1)} °C` : "-- °C";
+
+        const hora = new Date(dados.timestamp).toLocaleTimeString("pt-BR");
+        document.getElementById("timestamp").textContent =
+          `Última atualização: ${hora}`;
+      } catch (erro) {
+        console.error("Erro:", erro);
+      }
+    }
+
+    atualizarTemperaturas();
+    setInterval(atualizarTemperaturas, 5000);
+  </script>
+</body>
+</html>
